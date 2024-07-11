@@ -1,8 +1,13 @@
+use std::rc::Rc;
+
 use nannou::prelude::*;
+use nannou::text::Font;
 
 use model::MessageScreen;
+use repository::RedisMessageRepository;
 
 mod model;
+mod repository;
 
 fn main() {
     nannou::app(model)
@@ -14,14 +19,20 @@ fn main() {
 
 struct Model {
     message_screen: MessageScreen,
+    message_repository: RedisMessageRepository,
 }
 
 fn model(_app: &App) -> Model {
-    let w = _app.window_rect().x;
-    let h = _app.window_rect().y;
-    let message_screen = MessageScreen::new();
+    let font = Vec::from(include_bytes!("../assets/BIZUDPGothic-Bold.ttf") as &[u8]);
+    let font = Font::from_bytes(font).unwrap();
+    let message_screen = MessageScreen::new(font);
+    let redis_client = redis::Client::open("redis://localhost").unwrap();
+    let repo = repository::RedisMessageRepository {
+        client: Rc::new(redis_client),
+    };
     Model {
         message_screen,
+        message_repository: repo,
     }
 }
 
@@ -30,7 +41,11 @@ fn event(_app: &App, _model: &mut Model, _event: Event) {
         Event::WindowEvent { id: _id, simple: window_event } => {
             if let Some(KeyPressed(key)) = window_event {
                 match key {
-                    Key::Up => _model.message_screen.add_message("hello", _app),
+                    Key::Up => _model.message_screen.add_message("こんにちは", _app),
+                    Key::Return => {
+                        let message = _model.message_repository.get_random();
+                        _model.message_screen.add_message(&message, _app);
+                    }
                     _ => {}
                 }
             }
@@ -47,7 +62,7 @@ fn view(_app: &App, _model: &Model, _frame: Frame) {
     let draw = _app.draw();
     draw.background().color(BLACK);
 
-    _model.message_screen.draw(&draw, 64.0);
+    _model.message_screen.draw(&draw, 48.0);
 
     draw.to_frame(_app, &_frame).unwrap();
 }

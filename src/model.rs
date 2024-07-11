@@ -1,5 +1,5 @@
 use nannou::prelude::*;
-use nannou::text::FontSize;
+use nannou::text::{Font, FontSize, Justify};
 
 pub struct Message {
     p: Point2,
@@ -14,12 +14,14 @@ impl Message {
 
 pub struct MessageScreen {
     messages: Vec<Message>,
+    font: Font
 }
 
 impl MessageScreen {
-    pub fn new() -> Self {
+    pub fn new(font: Font) -> Self {
         MessageScreen {
             messages: Vec::new(),
+            font,
         }
     }
 
@@ -27,7 +29,7 @@ impl MessageScreen {
         let v = app.window_rect().y;
         let h = app.window_rect().x;
         let y = random_range(v.start, v.end);
-        let p = pt2(h.end, y);
+        let p = pt2(h.end + 400.0, y);
         self.messages.push(Message::new(p, body));
     }
 
@@ -36,14 +38,17 @@ impl MessageScreen {
         for message in &mut self.messages {
             message.p.x -= (h.end - h.start) / 400.0;
         }
-        self.messages.retain(|message| message.p.x > h.start);
+        self.messages.retain(|message| message.p.x > h.start - 2500.0);
     }
 
     pub fn draw(&self, draw: &Draw, size: f32) {
         self.messages.iter().for_each(|message| {
             draw.text(&message.body)
+                .font(self.font.clone())
                 .xy(message.p)
                 .font_size(FontSize::from_f32(size).unwrap())
+                .justify(Justify::Left)
+                .no_line_wrap()
                 .color(WHITE);
         });
     }
