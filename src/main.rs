@@ -28,8 +28,12 @@ fn model(_app: &App) -> Model {
     let font = Font::from_bytes(font).unwrap();
     let message_screen = MessageScreen::new(font);
 
-    let redis_host = env::var("REDIS_HOST").unwrap();
-    let redis_client = redis::Client::open(redis_host).unwrap();
+    let redis_host_name =
+        env::var("REDIS_HOSTNAME").expect("missing environment variable REDIS_HOSTNAME");
+    let redis_password =
+        env::var("REDIS_PASSWORD").expect("missing environment variable REDIS_PASSWORD");
+    let redis_conn_url = format!("redis://:{}@{}", redis_password, redis_host_name);
+    let redis_client = redis::Client::open(redis_conn_url).expect("failed to open redis client");
     let repo = repository::RedisMessageRepository {
         client: Rc::new(redis_client),
     };
