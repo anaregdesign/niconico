@@ -29,11 +29,11 @@ impl MessageScreen {
 
     pub fn add_message(&mut self, body: &str, app: &App) {
         let v = app.window_rect().y;
-        let v_padded = v.pad(30.0);
+        let v_padded = v.pad(50.0);
         let h = app.window_rect().x;
-        let height = h.end - h.start;
+        let height = v_padded.end - v_padded.start;
         // split h to 5 ranges
-        let num_part = 10;
+        let num_part = 5;
         let slots: Vec<Range<f32>> = (0..num_part).map(|i| {
             (v_padded.start + height / num_part as f32 * i as f32)..(v_padded.start + height / num_part as f32 * (i + 1) as f32)
         }).collect();
