@@ -1,3 +1,4 @@
+use std::env;
 use std::rc::Rc;
 
 use nannou::prelude::*;
@@ -26,7 +27,9 @@ fn model(_app: &App) -> Model {
     let font = Vec::from(include_bytes!("../assets/BIZUDPGothic-Bold.ttf") as &[u8]);
     let font = Font::from_bytes(font).unwrap();
     let message_screen = MessageScreen::new(font);
-    let redis_client = redis::Client::open("redis://localhost").unwrap();
+
+    let redis_host = env::var("REDIS_HOST").unwrap();
+    let redis_client = redis::Client::open(redis_host).unwrap();
     let repo = repository::RedisMessageRepository {
         client: Rc::new(redis_client),
     };

@@ -37,8 +37,7 @@ impl MessageScreen {
         let slots: Vec<Range<f32>> = (0..num_part).map(|i| {
             (v_padded.start + height / num_part as f32 * i as f32)..(v_padded.start + height / num_part as f32 * (i + 1) as f32)
         }).collect();
-        println!("slots{:?}", slots);
-        let mut counts: Vec<i32> = (0..num_part).map(|i| { 0 }).collect();
+        let mut counts: Vec<i32> = (0..num_part).map(|_i| { 0 }).collect();
 
         for m in &self.messages {
             for i in 0..num_part {

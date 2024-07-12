@@ -11,10 +11,12 @@ pub struct RedisMessageRepository {
 impl RedisMessageRepository {
     pub fn get_random(&self) -> String {
         let mut con = self.client.get_connection().unwrap();
-        let keys: Vec<String> = con.keys("*").unwrap();
+        let keys: Vec<String> = con.keys("message:*").unwrap();
         let random_index = random_range(0, keys.len());
         let key = keys.get(random_index).unwrap();
         let message: String = con.get(key).unwrap();
+        println!("key: {}", key);
+        println!("message: {}", message);
         message
     }
 }
