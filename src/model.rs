@@ -29,13 +29,15 @@ impl MessageScreen {
 
     pub fn add_message(&mut self, body: &str, app: &App) {
         let v = app.window_rect().y;
+        let v_padded = v.pad(30.0);
         let h = app.window_rect().x;
         let height = h.end - h.start;
         // split h to 5 ranges
-        let num_part = 5;
+        let num_part = 10;
         let slots: Vec<Range<f32>> = (0..num_part).map(|i| {
-            (h.start + height / num_part as f32 * i as f32)..(h.start + height / num_part as f32 * (i + 1) as f32)
+            (v_padded.start + height / num_part as f32 * i as f32)..(v_padded.start + height / num_part as f32 * (i + 1) as f32)
         }).collect();
+        println!("slots{:?}", slots);
         let mut counts: Vec<i32> = (0..num_part).map(|i| { 0 }).collect();
 
         for m in &self.messages {
@@ -45,9 +47,10 @@ impl MessageScreen {
                 }
             }
         }
+        println!("counts{:?}", counts);
 
         let min_count = counts.iter().min().unwrap();
-        let min_slot_index = counts.iter().position(|e| e == min_count).unwrap();
+         let min_slot_index = counts.iter().position(|e| e == min_count).unwrap();
         let y = random_range(slots[min_slot_index].start, slots[min_slot_index].end);
 
         let p = pt2(h.end + 400.0, y);
@@ -57,7 +60,7 @@ impl MessageScreen {
     pub fn update(&mut self, app: &App) {
         let h = app.window_rect().x;
         for message in &mut self.messages {
-            message.p.x -= (h.end - h.start) / 400.0;
+            message.p.x -= 3.0 + (message.body.len() as f32).sqrt();
         }
         self.messages.retain(|message| message.p.x > h.start - 1200.0);
     }
